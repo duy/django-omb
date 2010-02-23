@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 version = '0.1.0'
 
 setup(
-    name='django-microblogging',
+    name='django-omb',
     version=version,
     description='OpenMicroblogging support for Django',
     classifiers=[

@@ -1,0 +1,21 @@
+from django import template
+register = template.Library()
+from django.contrib.auth.models import User
+from omb.models import RemoteProfile
+
+def profile_url(user):
+    if not isinstance(user, User):
+        try:
+            user = User.objects.get(username=user)
+            alt = unicode(user)
+            url = user.get_absolute_url()
+        except User.DoesNotExist:
+            print "no existe el usuario"
+            if isinstance(user, RemoteProfile):
+                url = user.url
+                alt = unicode(user.username)
+    else:
+        alt = unicode(user)
+        url = user  .get_absolute_url()
+    return """<a href="%s">%s</a>""" % (url, alt)
+register.simple_tag(profile_url)

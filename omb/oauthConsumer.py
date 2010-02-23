@@ -7,12 +7,18 @@ import urlparse, urllib
 def requestToken(omb):
     current_site = Site.objects.get_current()
     url = urlparse.urlparse(omb[OAUTH_REQUEST].uris[0].uri)
+    print url
     params = {}
     if url[4] != '':
         # We need to copy over the query string params for sites like laconica
         params.update(dict([part.split('=') for part in url[4].split('&')]))
+    print params
     params['omb_version'] = OMB_VERSION_01
-    params['omb_listener'] = omb[OAUTH_REQUEST].localid.text
+    print omb[OAUTH_REQUEST].localids[0].localid
+    print dir(omb[OAUTH_REQUEST].localids)
+    print dir(omb[OAUTH_REQUEST].localids[0].localid)
+#    params['omb_listener'] = omb[OAUTH_REQUEST].localid.text
+    params['omb_listener'] = omb[OAUTH_REQUEST].localids[0].localid
     consumer = OAuthConsumer(current_site.domain, "")
     req = OAuthRequest().from_consumer_and_token(consumer, http_url=url.geturl(), parameters=params, http_method="POST")
     req.sign_request(OAuthSignatureMethod_HMAC_SHA1(), consumer, None)
@@ -35,7 +41,8 @@ def requestAuthorization(token, url, listener, user):
     params['omb_listenee'] = "http://%s" % user_profile_url
     params['omb_listenee_profile'] = "http://%s" % user_profile_url
     params['omb_listenee_nickname'] = user.username
-    params['omb_listenee_license'] = 'http://%s/license/' % current_site.domain # TODO link to the real license
+#    params['omb_listenee_license'] = 'http://%s/license/' % current_site.domain # TODO link to the real license
+    params['omb_listenee_license'] = 'http://creativecommons.org/licenses/by/3.0/'
     params['omb_listenee_fullname'] = "%s %s" % (user.first_name, user.last_name)
     params['omb_listenee_homepage'] = "" # TOOD Pinax doesn't have this
     params['omb_listenee_bio'] = profile.about

@@ -33,12 +33,18 @@ def follow(request):
         if form.is_valid():
             user = User.objects.get(username=form.cleaned_data['username'])
             omb = oauthUtils.getServices(form.cleaned_data['profile_url'])
+            print omb
+            for k,v in omb.items():
+                print k,dir(v)
             token = oauthConsumer.requestToken(omb)
-            oauthRequest = oauthConsumer.requestAuthorization(token, omb[OAUTH_AUTHORIZE].uris[0].uri, omb[OAUTH_REQUEST].localid.text, user)
+#            oauthRequest = oauthConsumer.requestAuthorization(token, omb[OAUTH_AUTHORIZE].uris[0].uri, omb[OAUTH_REQUEST].localid.text, user)
+            oauthRequest = oauthConsumer.requestAuthorization(token, omb[OAUTH_AUTHORIZE].uris[0].uri, omb[OAUTH_REQUEST].localids[0].localid, user)
+
             # store a bunch of stuff in the session varioable oauth_authorization_request
             omb_session = {
                 'listenee': user.username,
-                'listener': omb[OAUTH_REQUEST].localid.text,
+#                'listener': omb[OAUTH_REQUEST].localid.text,
+                'listener': omb[OAUTH_REQUEST].localids[0].localid,
                 'token': token.key,
                 'secret': token.secret,
                 'access_token_url': omb[OAUTH_ACCESS].uris[0].uri,
@@ -60,7 +66,7 @@ def finish_follow(request):
         remote_profile.username = oauth_request.get_parameter("omb_listener_nickname")
         remote_profile.uri = omb_session["listener"]
         remote_profile.url = oauth_request.get_parameter('omb_listener_profile')
-        remote_profile.avatar = oauth_request.get_parameter('omb_listener_avatar')
+#        remote_profile.avatar = oauth_request.get_parameter('omb_listener_avatar')
         remote_profile.post_notice_url = omb_session["post_notice_url"]
         remote_profile.update_profile_url = omb_session["update_profile_url"]
         remote_profile.token = accessToken.key
